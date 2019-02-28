@@ -1,18 +1,39 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import styled from 'styled-components'
+import classnames from 'classnames'
 
 const Form = styled.form`
   display: grid;
   grid-gap: 2px;
-  grid-template-rows: 48px 48px 48px 48px 48px;
+  grid-template-rows: auto;
 `
 
 const Input = styled.input`
+  height: 48px;
   padding-left: 10px;
+  border-radius: 4px;
+  border: 2px solid lightgray;
+
+  &.is-valid {
+    border-radius: 4px;
+    border: 2px solid lightblue;
+  }
+
+  &.is-invalid {
+    border-radius: 4px;
+    border: 2px solid red;
+  }
+`
+const Validation = styled.div`
+  font-family: system-ui;
+  padding-left: 10px;
+  font-size: 12px;
+  color: gray;
 `
 
 const Button = styled.button`
+  height: 48px;
   background: papayawhip;
   color: steelblue;
   font-size: 20px;
@@ -20,7 +41,7 @@ const Button = styled.button`
   border-radius: 3px;
 `
 
-export default function Registe(props) {
+export default function Registe() {
   const [registerData, setRegisterData] = useState({
     name: '',
     email: '',
@@ -30,57 +51,73 @@ export default function Registe(props) {
   })
 
   function onChange(e) {
-    setRegisterData({ [e.target.name]: e.target.value })
+    setRegisterData({ ...registerData, [e.target.name]: e.target.value })
   }
 
   function onSubmit(e) {
     e.preventDefault()
 
     const newUser = {
-      name1: registerData.name,
-      email1: registerData.email,
-      password1: registerData.password,
+      name: registerData.name,
+      email: registerData.email,
+      password: registerData.password,
       password2: registerData.password2,
     }
     console.log(newUser)
     axios
       .post('/users/register', newUser)
       .then(res => console.log(res.data))
-      .catch(err => console.log(err))
+      .catch(err => setRegisterData({ errors: err.response.data }))
   }
 
-  const { name, email, password, password2 } = registerData
+  const { name, email, password, password2, errors } = registerData
   return (
     <React.Fragment>
       <Form onSubmit={onSubmit}>
+        {errors.name && <Validation>{errors.name}</Validation>}
+
         <Input
-          name="name1"
+          className={classnames('is-valid', { 'is-invalid': errors.name })}
           type="name"
           placeholder="Enter your name"
-          value={name}
+          name={name}
+          name="name"
           onChange={onChange}
         />
+
+        {errors.email && <Validation>{errors.email}</Validation>}
+
         <Input
-          name="email1"
+          className={classnames('is-valid', { 'is-invalid': errors.email })}
           type="email"
           placeholder="Enter your email"
-          value={email}
+          email={email}
+          name="email"
           onChange={onChange}
         />
+
+        {errors.password && <Validation>{errors.password}</Validation>}
+
         <Input
-          name="password1"
+          className={classnames({ 'is-invalid': errors.password })}
           type="password"
           placeholder="Enter your password"
-          value={password}
+          password={password}
           onChange={onChange}
+          name="password"
         />
+
+        {errors.password2 && <Validation>{errors.password2}</Validation>}
+
         <Input
-          name="password2"
+          className={classnames({ 'is-invalid': errors.password })}
           type="password"
           placeholder="Confirm your Password"
-          value={password2}
+          password2={password2}
           onChange={onChange}
+          name="password2"
         />
+
         <Button>Register</Button>
       </Form>
     </React.Fragment>

@@ -1,23 +1,46 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
+import classnames from 'classnames'
 
 const Form = styled.form`
   display: grid;
   grid-gap: 2px;
-  grid-template-rows: 48px 48px 48px;
+  grid-template-rows: auto;
 `
 
 const Input = styled.input`
+  height: 48px;
   padding-left: 10px;
+  border-radius: 4px;
+  border: 2px solid lightgray;
+
+  &.is-valid {
+    border-radius: 4px;
+    border: 2px solid lightblue;
+  }
+
+  &.is-invalid {
+    border-radius: 4px;
+    border: 2px solid red;
+  }
 `
 
 const Button = styled.button`
+  height: 48px;
   background: papayawhip;
   color: steelblue;
   font-size: 20px;
   border: 3px solid steelblue;
   border-radius: 3px;
+  border-radius: 4px;
+`
+
+const Validation = styled.div`
+  font-family: system-ui;
+  padding-left: 10px;
+  font-size: 12px;
+  color: gray;
 `
 
 export default function Login() {
@@ -28,7 +51,7 @@ export default function Login() {
   })
 
   function onChange(e) {
-    setLoginData({ [e.target.name]: e.target.value })
+    setLoginData({ ...loginData, [e.target.name]: e.target.value })
   }
 
   function onSubmit(e) {
@@ -42,25 +65,32 @@ export default function Login() {
     axios
       .post('/users/login', user)
       .then(res => console.log(res.data))
-      .catch(err => console.log(err))
+      .catch(err => setLoginData({ errors: err.response.data }))
   }
 
-  const { email, password } = loginData
+  const { email, password, errors } = loginData
   return (
     <React.Fragment>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} loginData={loginData}>
+        {errors.email && <Validation>{errors.email}</Validation>}
+
         <Input
-          name="name"
+          className={classnames('is-valid', { 'is-invalid': errors.email })}
+          email={email}
+          name="email"
           type="email"
           placeholder="Enter your email"
-          email={email}
           onChange={onChange}
         />
+
+        {errors.password && <Validation>{errors.password}</Validation>}
+
         <Input
+          className={classnames('is-valid', { 'is-invalid': errors.password })}
+          password={password}
           name="password"
           type="password"
           placeholder="Enter your password"
-          password={password}
           onChange={onChange}
         />
         <Button>Login</Button>
