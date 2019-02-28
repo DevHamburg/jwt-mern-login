@@ -67,13 +67,15 @@ export default function Registe() {
     axios
       .post('/users/register', newUser)
       .then(res => console.log(res.data))
-      .catch(err => setRegisterData({ errors: err.response.data }))
+      .catch(err =>
+        setRegisterData({ ...registerData, errors: err.response.data })
+      )
   }
 
   const { name, email, password, password2, errors } = registerData
   return (
     <React.Fragment>
-      <Form onSubmit={onSubmit}>
+      <Form noValidate onSubmit={onSubmit}>
         {errors.name && <Validation>{errors.name}</Validation>}
 
         <Input

@@ -65,13 +65,13 @@ export default function Login() {
     axios
       .post('/users/login', user)
       .then(res => console.log(res.data))
-      .catch(err => setLoginData({ errors: err.response.data }))
+      .catch(err => setLoginData({ ...loginData, errors: err.response.data }))
   }
 
   const { email, password, errors } = loginData
   return (
     <React.Fragment>
-      <Form onSubmit={onSubmit} loginData={loginData}>
+      <Form noValidate onSubmit={onSubmit} loginData={loginData}>
         {errors.email && <Validation>{errors.email}</Validation>}
 
         <Input
